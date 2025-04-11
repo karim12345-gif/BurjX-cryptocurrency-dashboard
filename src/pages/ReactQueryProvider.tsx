@@ -1,16 +1,14 @@
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
-import { ReactQueryProviderProps } from "../interfaces";
-import { ResponseModelHelper } from "../services/helpers";
+import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryProviderProps } from '../interfaces';
+import { useResponseModelHelper } from '@/services/helpers/ResponseModelHelper';
 
 const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
+  // Use the hook inside the component
+  const handleError = useResponseModelHelper();
+
   const queryClient = new QueryClient({
-    //** query cache will fetch data and store it and when called it will get the result from stored cache this improves performance */
     queryCache: new QueryCache({
-      onError: (error: any) => ResponseModelHelper(error),
+      onError: (error: any) => handleError(error),
     }),
     defaultOptions: {
       queries: {
@@ -20,10 +18,7 @@ const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
     },
   });
 
-  return (
-    // ** children is the component that will be wrapped by the QueryClientProvider
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
 export default ReactQueryProvider;

@@ -1,13 +1,12 @@
 const pageRoutes = {
-  home: "/home",
-  detailsPage: "/detailsPage",
+  home: '/home',
+  coinDetail: '/coin/:coinId',
 };
 
 const errorRoutes = {
-  401: "/401",
-  404: "/404",
-  500: "/500",
-  error: "/error",
+  404: '/404',
+  500: '/500',
+  error: '/error',
 };
 
 const routes = {

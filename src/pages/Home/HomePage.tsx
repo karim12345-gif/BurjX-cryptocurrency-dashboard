@@ -1,8 +1,11 @@
 import Grid from '@mui/material/Grid';
-import CircularProgress from '@mui/material/CircularProgress';
-import { Suspense } from 'react';
 import { Header } from '@/components/layouts';
-import { FeaturedDashboard } from '@/features/market/components';
+import { lazy, Suspense } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+
+// Lazy load both large feature components
+const CoinListPage = lazy(() => import('../CoinListPage'));
+const FeaturedDashboard = lazy(() => import('@/features/market/components/FeaturedDashboard'));
 
 const Home = () => {
   return (
@@ -10,9 +13,18 @@ const Home = () => {
       <Header />
       <Grid container spacing={3} justifyContent="center">
         {/* Featured */}
-        <FeaturedDashboard />
+        <Suspense
+          fallback={
+            <div className="w-full flex justify-center py-10">
+              <CircularProgress sx={{ color: '#D4F935' }} />
+            </div>
+          }
+        >
+          <FeaturedDashboard />
+        </Suspense>
+
         {/* Table */}
-        <Suspense fallback={<CircularProgress />} />
+        <CoinListPage />
       </Grid>
     </>
   );

@@ -2,17 +2,6 @@ interface ReactQueryProviderProps {
   children: React.ReactNode;
 }
 
-type CryptoData = {
-  id: string;
-  name: string;
-  symbol: string;
-  price: number;
-  percentChange: number;
-  chartData: { date: string; price: number }[];
-  color: string;
-  icon: string;
-};
-
 export type MarketCapCoin = {
   currentPrice: number;
   id: string;
@@ -32,7 +21,22 @@ interface GetListOfMarketCap {
   pageSize: number;
   totalItems: number;
   totalPages: number;
-  data: MarketCapCoin;
+  data: MarketCapCoin[];
 }
 
-export type { ReactQueryProviderProps, CryptoData, GetListOfMarketCap };
+// Coin data interfaces
+export interface CurrencyData {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+interface CoinOHLC {
+  date: number;
+  usd: CurrencyData;
+  aed: CurrencyData;
+  [key: string]: CurrencyData | number;
+}
+
+export type { ReactQueryProviderProps, GetListOfMarketCap, CoinOHLC };

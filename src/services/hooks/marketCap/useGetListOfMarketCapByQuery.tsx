@@ -16,6 +16,7 @@ const GetListOfMarketCapByQuery = async (
   return response.data;
 };
 
+// hook to get the list of market cap by query
 export const useGetListOfMarketCapByQuery = (page: number, pageSize: number) => {
   return useQuery({
     queryKey: ['GetListOfMarketCap'],

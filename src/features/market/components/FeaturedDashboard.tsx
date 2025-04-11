@@ -31,13 +31,13 @@ const FeaturedDashboard = () => {
   }, [marketCoins, selectedTab]);
 
   return (
-    <div className="text-white p-6 w-full bg-black min-h-screen">
+    <div className="text-white p-6 w-full  ">
       <h1 className="text-4xl mb-8 text-left">Markets</h1>
       <CryptoTabs selected={selectedTab} onSelect={setSelectedTab} />
 
       {isLoading ? (
         <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-yellow-400"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
         </div>
       ) : (
         <CryptoGrid data={filteredCoins} />
