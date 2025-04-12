@@ -1,29 +1,30 @@
 import { useNavigate } from 'react-router-dom';
-import { MarketCapCoin } from '@/interfaces';
+import { MarketTableRowProps } from '@/interfaces';
 import { Line, LineChart, ResponsiveContainer, YAxis } from 'recharts';
 import { formatLargeNumber } from '../utils/formatters';
+import React, { useMemo } from 'react';
 
-interface Props {
-  coin: MarketCapCoin;
-}
-
-const MarketTableRow = ({ coin }: Props) => {
+const MarketTableRow = ({ coin }: MarketTableRowProps) => {
   const navigate = useNavigate();
 
   const handleTradeClick = () => {
     navigate(`/coin/${coin.id}`);
   };
 
-  const chartData = coin.sparkline.map((price, i) => ({
-    date: `${i}h`,
-    price,
-  }));
+  // Memoize chart-related calculations to improve performance
+  const { chartData, minPrice, maxPrice, isPriceUp } = useMemo(() => {
+    const chartData = coin.sparkline.map((price, i) => ({
+      date: `${i}h`,
+      price,
+    }));
 
-  const priceValues = chartData.map((item) => item.price);
-  const minPrice = Math.min(...priceValues) * 0.995;
-  const maxPrice = Math.max(...priceValues) * 1.005;
+    const priceValues = chartData.map((item) => item.price);
+    const minPrice = Math.min(...priceValues) * 0.995;
+    const maxPrice = Math.max(...priceValues) * 1.005;
+    const isPriceUp = coin.priceChangePercentage24h >= 0;
 
-  const isPriceUp = coin.priceChangePercentage24h >= 0;
+    return { chartData, minPrice, maxPrice, isPriceUp };
+  }, [coin.sparkline, coin.priceChangePercentage24h]);
 
   return (
     <tr>
@@ -96,4 +97,4 @@ const MarketTableRow = ({ coin }: Props) => {
   );
 };
 
-export default MarketTableRow;
+export default React.memo(MarketTableRow);

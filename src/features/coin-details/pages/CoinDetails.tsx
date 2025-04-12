@@ -1,21 +1,19 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Container, Divider, Paper, CircularProgress } from '@mui/material';
-
 import ChartStyleToggle from '../components/ChartStyleToggle';
-import { lazy } from 'react';
-
+import { lazy, useEffect } from 'react';
 import { useGetListOfCoinDatabyId } from '@/services/hooks/CoinData';
-import { useGetListOfMarketCapByQuery } from '@/services/hooks';
 import { MarketCapCoin } from '@/interfaces';
 import { BackButton } from '@/components/button';
 import { daysMap } from '../utils';
+import { useMarket } from '@/context/MarketContext';
 
 const PriceChart = lazy(() => import('../components/PriceChart'));
 const CoinSelector = lazy(() => import('../components/CoinSelector'));
 const TimeframeSelector = lazy(() => import('../components/TimeframeSelector'));
 
-const CoinDetailsPage = () => {
+const CoinDetials = () => {
   const coindUsd = 'usd';
   const oneHour = '1H';
   const candlestick = 'candlestick';
@@ -24,15 +22,16 @@ const CoinDetailsPage = () => {
   const [chartType, setChartType] = useState<'line' | 'candlestick'>(candlestick);
   const [timeframe, setTimeframe] = useState(oneHour);
 
-  const { data: marketCapData, isLoading: isLoadingCoins } = useGetListOfMarketCapByQuery(1, 10);
-  const coinList: MarketCapCoin[] = Array.isArray(marketCapData?.data) ? marketCapData.data : [];
+  // Use the market context for coin data
+  const { coins, isLoading: isLoadingCoins } = useMarket();
 
+  // Find the selected coin from the context
   useEffect(() => {
-    if (coinList && coinId) {
-      const found = coinList.find((coin) => coin.id === coinId);
+    if (coins.length > 0 && coinId) {
+      const found = coins.find((coin) => coin.id === coinId);
       if (found) setSelectedCoin(found);
     }
-  }, [coinList, coinId]);
+  }, [coins, coinId]);
 
   const days = useMemo(() => daysMap[timeframe] ?? 1, [timeframe]);
 
@@ -41,18 +40,18 @@ const CoinDetailsPage = () => {
     days as number
   );
 
-  // hanlde the chart type change
+  // Handle the chart type change
   const handleChartTypeChange = (newType: 'line' | 'candlestick') => {
     setChartType(newType);
   };
 
-  // handling if the selected coin is not found
+  // Handle if the selected coin is not found
   if (!selectedCoin || isLoadingCoins) {
     return (
       <Box
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}
       >
-        <CircularProgress />
+        <CircularProgress sx={{ color: '#D4F935' }} />
       </Box>
     );
   }
@@ -69,11 +68,12 @@ const CoinDetailsPage = () => {
           <CoinSelector
             selectedCoin={selectedCoin}
             onSelectCoin={(coin) => setSelectedCoin(coin as MarketCapCoin)}
-            coins={coinList as MarketCapCoin[]}
+            coins={coins}
           />
           <Divider orientation="horizontal" flexItem sx={{ mx: 2, borderColor: '#333' }} />
         </Box>
 
+        {/* Rest of your component remains the same */}
         <Paper
           elevation={0}
           sx={{
@@ -85,23 +85,17 @@ const CoinDetailsPage = () => {
             position: 'relative',
           }}
         >
-          {/* Header with price, percentage, and toggle */}
+          {/* Header with price and percentage */}
           <Box
             sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
           >
             <Box>
-              {/* Price and toggle on the left */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                {/* Current price */}
                 <Typography variant="h3" sx={{ color: 'white', fontWeight: 'bold' }}>
                   ${selectedCoin?.currentPrice.toLocaleString()}
                 </Typography>
-
-                {/* Chart toggle */}
                 <ChartStyleToggle chartType={chartType} onChange={handleChartTypeChange} />
               </Box>
-
-              {/* Price change percentage under price and toggle */}
               <Box
                 sx={{
                   display: 'inline-block',
@@ -125,11 +119,10 @@ const CoinDetailsPage = () => {
           <Box sx={{ position: 'relative' }}>
             {isLoadingChart ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 8, height: 400 }}>
-                <CircularProgress />
+                <CircularProgress sx={{ color: '#D4F935' }} />
               </Box>
             ) : (
               <Box sx={{ position: 'relative' }}>
-                {/* Chart */}
                 <PriceChart
                   data={Array.isArray(chartData) ? chartData : []}
                   chartType={chartType}
@@ -137,8 +130,6 @@ const CoinDetailsPage = () => {
                   coinSymbol={selectedCoin?.symbol?.toUpperCase() ?? ''}
                   currency={coindUsd}
                 />
-
-                {/* Timeframe selector  */}
                 <Box sx={{ mt: 2, pl: 1 }}>
                   <TimeframeSelector timeframe={timeframe} onChange={setTimeframe} />
                 </Box>
@@ -151,4 +142,4 @@ const CoinDetailsPage = () => {
   );
 };
 
-export default CoinDetailsPage;
+export default CoinDetials;

@@ -1,2 +1,2 @@
-export { default as CoinDetailsPage } from './pages/CoinDetailsPage';
+export { default as CoinDetailsPage } from './pages/CoinDetails';
 export * from './components';

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useMemo, memo } from 'react';
 import { Box } from '@mui/material';
 import ReactApexChart from 'react-apexcharts';
 import { CurrencyData } from '@/interfaces';
@@ -6,22 +6,20 @@ import { ApexOptions } from 'apexcharts';
 import { PriceChartProps } from '../interface';
 import { getTimeFormat } from '../utils';
 
-const PriceChart = ({
+const PriceChart: React.FC<PriceChartProps> = ({
   data,
   chartType,
   timeframe,
   coinSymbol,
   currency = 'usd',
-}: PriceChartProps) => {
+}) => {
   const line = 'line';
   const candlestick = 'candlestick';
-  const [chartData, setChartData] = useState<any[]>([]);
 
-  // Transform the data to the format required by ApexCharts
-  useEffect(() => {
-    if (!data || data.length === 0) return;
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
 
-    const transformed = data
+    return data
       .map((item) => {
         const currencyKey = currency.toLowerCase();
         const c = item[currencyKey as keyof typeof item] || {};
@@ -47,94 +45,96 @@ const PriceChart = ({
               : [currencyData.open, currencyData.high, currencyData.low, currencyData.close],
         };
       })
-      .filter(Boolean);
-
-    setChartData(transformed);
+      .filter(Boolean) as Array<{ x: number; y: number | number[] }>;
   }, [data, currency, chartType]);
 
-  // Define the chart options
-  const options: ApexOptions = {
-    chart: {
-      type: (chartType === line ? line : candlestick) as ApexChart['type'],
-      height: 400,
-      background: '#1E1E1E',
-      foreColor: '#aaa',
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: timeframe === '1H' || timeframe === '1D', // Enable zoom for shorter timeframes
-      },
-    },
-    colors: chartType === line ? ['#A3E635'] : undefined,
-    title: {
-      align: 'left',
-      style: {
-        color: '#fff',
-      },
-    },
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        datetimeUTC: false,
-        format: getTimeFormat(timeframe),
-        style: {
-          colors: '#aaa',
+  const options: ApexOptions = useMemo(
+    () => ({
+      chart: {
+        type: (chartType === line ? line : candlestick) as ApexChart['type'],
+        height: 400,
+        background: '#1E1E1E',
+        foreColor: '#aaa',
+        toolbar: {
+          show: false,
+        },
+        zoom: {
+          enabled: timeframe === '1H' || timeframe === '1D',
         },
       },
-      tickAmount: timeframe === '1H' ? 6 : undefined,
-    },
-    yaxis: {
-      opposite: true,
+      colors: chartType === line ? ['#A3E635'] : undefined,
+      title: {
+        align: 'left',
+        style: {
+          color: '#fff',
+        },
+      },
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          datetimeUTC: false,
+          format: getTimeFormat(timeframe),
+          style: {
+            colors: '#aaa',
+          },
+        },
+        tickAmount: timeframe === '1H' ? 6 : undefined,
+      },
+      yaxis: {
+        opposite: true,
+        tooltip: {
+          enabled: true,
+        },
+        labels: {
+          formatter: (value: number) => {
+            if (value >= 1000) {
+              return `$${Math.round(value / 1000)}k`;
+            }
+            return `$${value.toLocaleString()}`;
+          },
+          style: {
+            colors: '#aaa',
+          },
+        },
+      },
       tooltip: {
-        enabled: true,
-      },
-      labels: {
-        formatter: (value: number) => {
-          if (value >= 1000) {
-            return `$${Math.round(value / 1000)}k`;
-          }
-          return `$${value.toLocaleString()}`;
+        x: {
+          format: getTimeFormat(timeframe),
         },
-        style: {
-          colors: '#aaa',
-        },
+        theme: 'dark',
       },
-    },
-    tooltip: {
-      x: {
-        format: getTimeFormat(timeframe),
-      },
-      theme: 'dark',
-    },
-    plotOptions: {
-      candlestick: {
-        colors: {
-          upward: '#A3E635',
-          downward: '#EF4444',
+      plotOptions: {
+        candlestick: {
+          colors: {
+            upward: '#A3E635',
+            downward: '#EF4444',
+          },
         },
       },
-    },
-    grid: {
-      borderColor: '#333',
-      strokeDashArray: 4,
-    },
-    theme: {
-      mode: 'dark',
-    },
-    stroke: {
-      curve: 'smooth',
-      width: chartType === line ? 2 : 1,
-    },
-  };
+      grid: {
+        borderColor: '#333',
+        strokeDashArray: 4,
+      },
+      theme: {
+        mode: 'dark',
+      },
+      stroke: {
+        curve: 'smooth',
+        width: chartType === line ? 2 : 1,
+      },
+    }),
+    [chartType, timeframe]
+  );
 
-  // Set the series data based on the chart type
-  const series = [
-    {
-      name: coinSymbol.toUpperCase(),
-      data: chartData,
-    },
-  ];
+  const series = useMemo(
+    () => [
+      {
+        name: coinSymbol.toUpperCase(),
+        data: chartData,
+      },
+    ],
+    [coinSymbol, chartData]
+  );
 
   return (
     <Box sx={{ height: 400, width: '100%', background: '#1A1A1A', borderRadius: '16px' }}>
@@ -162,4 +162,4 @@ const PriceChart = ({
   );
 };
 
-export default PriceChart;
+export default memo(PriceChart);

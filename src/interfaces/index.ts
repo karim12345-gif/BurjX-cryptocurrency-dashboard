@@ -39,4 +39,8 @@ interface CoinOHLC {
   [key: string]: CurrencyData | number;
 }
 
-export type { ReactQueryProviderProps, GetListOfMarketCap, CoinOHLC };
+interface MarketTableRowProps {
+  coin: MarketCapCoin;
+}
+
+export type { ReactQueryProviderProps, GetListOfMarketCap, CoinOHLC, MarketTableRowProps };

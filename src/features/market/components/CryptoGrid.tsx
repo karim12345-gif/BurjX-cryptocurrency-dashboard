@@ -1,11 +1,7 @@
-import { MarketCapCoin } from '@/interfaces';
 import CryptoCard from './CryptoCard';
+import { MarketCapCoinProp } from '../interface';
 
-interface Props {
-  data: MarketCapCoin[];
-}
-
-const CryptoGrid = ({ data }: Props) => (
+const CryptoGrid = ({ data }: MarketCapCoinProp) => (
   <div className="overflow-x-auto w-full">
     <div className="flex gap-4 min-w-max">
       {data.map((crypto) => (

@@ -1,14 +1,17 @@
+import React, { useMemo } from 'react';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
+import { MarketChartProps } from '../interface';
 
-interface Props {
-  sparkline: number[];
-  isPositive: boolean;
-}
+const MarketChart = ({ sparkline, isPositive }: MarketChartProps) => {
+  const strokeColor = isPositive ? '#A3E635' : '#EF4444';
 
-const MarketChart = ({ sparkline, isPositive }: Props) => {
-  const chartData = sparkline.map((price, i) => ({ date: `${i}h`, price }));
-  const min = Math.min(...sparkline) * 0.995;
-  const max = Math.max(...sparkline) * 1.005;
+  // Memoize the data processing to avoid recalculation on each render
+  const { chartData, min, max } = useMemo(() => {
+    const chartData = sparkline.map((price, i) => ({ date: `${i}h`, price }));
+    const min = Math.min(...sparkline) * 0.995;
+    const max = Math.max(...sparkline) * 1.005;
+    return { chartData, min, max };
+  }, [sparkline]);
 
   return (
     <div className="h-16 w-32">
@@ -18,10 +21,11 @@ const MarketChart = ({ sparkline, isPositive }: Props) => {
           <Line
             type="monotone"
             dataKey="price"
-            stroke={isPositive ? '#A3E635' : '#EF4444'}
+            stroke={strokeColor}
             dot={false}
             strokeWidth={2}
             isAnimationActive={false}
+            connectNulls // Handle any null values
           />
         </LineChart>
       </ResponsiveContainer>
@@ -29,4 +33,4 @@ const MarketChart = ({ sparkline, isPositive }: Props) => {
   );
 };
 
-export default MarketChart;
+export default React.memo(MarketChart);

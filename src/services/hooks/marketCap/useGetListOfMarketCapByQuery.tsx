@@ -19,8 +19,8 @@ const GetListOfMarketCapByQuery = async (
 // hook to get the list of market cap by query
 export const useGetListOfMarketCapByQuery = (page: number, pageSize: number) => {
   return useQuery({
-    queryKey: ['GetListOfMarketCap'],
+    queryKey: ['GetListOfMarketCap', page, pageSize],
     queryFn: () => GetListOfMarketCapByQuery(page, pageSize),
-    refetchInterval: 30000, // optional: refresh every 30s
+    refetchInterval: 30000, //  refresh every 30s
   });
 };

@@ -48,6 +48,9 @@ Templates & Pages → Layouts and route views
 
 ✅ Lazy loaded components for performance optimization
 
+🧯 Error Handling
+The app includes a custom Error Boundary wrapper for catching unexpected rendering errors and providing fallback UIs without crashing the whole app.
+
 🛠️ Getting Started:
 
 # Install dependencies

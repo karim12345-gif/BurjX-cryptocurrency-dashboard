@@ -31,10 +31,20 @@ interface CoinSelectorProps {
   coins: MarketCapCoin[];
 }
 
+interface CoinSearchModalProps {
+  open: boolean;
+  onClose: () => void;
+  coins: MarketCapCoin[];
+  onSelect: (coin: MarketCapCoin) => void;
+  searchTerm: string;
+  setSearchTerm: (val: string) => void;
+}
+
 export type {
   CurrencyData,
   PriceChartProps,
   TimeframeSelectorProps,
   ChartStyleToggleProps,
   CoinSelectorProps,
+  CoinSearchModalProps,
 };

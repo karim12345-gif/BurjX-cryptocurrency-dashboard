@@ -1,3 +1,3 @@
-import { ResponseModelHelper } from "./ResponseModelHelper";
+import { useResponseModelHelper } from './ResponseModelHelper';
 
-export { ResponseModelHelper };
+export { useResponseModelHelper };

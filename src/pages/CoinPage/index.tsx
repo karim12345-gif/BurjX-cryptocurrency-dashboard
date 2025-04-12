@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
-const CoinDetailsPage = lazy(() => import('@/features/coin-details/pages/CoinDetailsPage'));
+const CoinDetials = lazy(() => import('@/features/coin-details/pages/CoinDetails'));
 
 const CoinPage = () => {
   return (
@@ -15,7 +15,7 @@ const CoinPage = () => {
         </Box>
       }
     >
-      <CoinDetailsPage />
+      <CoinDetials />
     </Suspense>
   );
 };

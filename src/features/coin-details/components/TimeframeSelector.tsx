@@ -1,9 +1,8 @@
 import { Box, Button } from '@mui/material';
 import { TimeframeSelectorProps } from '../interface';
+import { timeframes } from '../utils';
 
 const TimeframeSelector = ({ timeframe, onChange }: TimeframeSelectorProps) => {
-  const timeframes = ['1H', '1D', '1W', '1M', '1Y', 'ALL'];
-
   return (
     <Box sx={{ display: 'flex', gap: 1 }}>
       {timeframes.map((timeFrame) => (
