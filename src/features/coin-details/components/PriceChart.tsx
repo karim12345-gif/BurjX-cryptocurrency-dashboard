@@ -16,38 +16,28 @@ const PriceChart: React.FC<PriceChartProps> = ({
   const line = 'line';
   const candlestick = 'candlestick';
 
+  // Optimize data transformation with reduce
   const chartData = useMemo(() => {
-    if (!data || data.length === 0) return [];
+    if (!data?.length) return [];
 
-    return data
-      .map((item) => {
-        const currencyKey = currency.toLowerCase();
-        const c = item[currencyKey as keyof typeof item] || {};
+    return data.reduce<Array<{ x: number; y: number | number[] }>>((acc, item) => {
+      const currencyKey = currency.toLowerCase();
+      const c = item[currencyKey as keyof typeof item] as CurrencyData;
 
-        if (!c || typeof c !== 'object') return null;
+      // Early validation to reduce unnecessary computations
+      if (!c?.open || !c?.high || !c?.low || !c?.close) return acc;
 
-        const currencyData = c as CurrencyData;
+      const transformedItem = {
+        x: new Date(item.date).getTime(),
+        y: chartType === line ? c.close : [c.open, c.high, c.low, c.close],
+      };
 
-        if (
-          currencyData.open === undefined ||
-          currencyData.high === undefined ||
-          currencyData.low === undefined ||
-          currencyData.close === undefined
-        ) {
-          return null;
-        }
-
-        return {
-          x: new Date(item.date).getTime(),
-          y:
-            chartType === line
-              ? currencyData.close
-              : [currencyData.open, currencyData.high, currencyData.low, currencyData.close],
-        };
-      })
-      .filter(Boolean) as Array<{ x: number; y: number | number[] }>;
+      acc.push(transformedItem);
+      return acc;
+    }, []);
   }, [data, currency, chartType]);
 
+  // Memoize chart options
   const options: ApexOptions = useMemo(
     () => ({
       chart: {
@@ -55,52 +45,30 @@ const PriceChart: React.FC<PriceChartProps> = ({
         height: 400,
         background: '#1E1E1E',
         foreColor: '#aaa',
-        toolbar: {
-          show: false,
-        },
-        zoom: {
-          enabled: timeframe === '1H' || timeframe === '1D',
-        },
+        toolbar: { show: false },
+        zoom: { enabled: timeframe === '1H' || timeframe === '1D' },
       },
       colors: chartType === line ? ['#A3E635'] : undefined,
-      title: {
-        align: 'left',
-        style: {
-          color: '#fff',
-        },
-      },
       xaxis: {
         type: 'datetime',
         labels: {
           datetimeUTC: false,
           format: getTimeFormat(timeframe),
-          style: {
-            colors: '#aaa',
-          },
+          style: { colors: '#aaa' },
         },
         tickAmount: timeframe === '1H' ? 6 : undefined,
       },
       yaxis: {
         opposite: true,
-        tooltip: {
-          enabled: true,
-        },
+        tooltip: { enabled: true },
         labels: {
-          formatter: (value: number) => {
-            if (value >= 1000) {
-              return `$${Math.round(value / 1000)}k`;
-            }
-            return `$${value.toLocaleString()}`;
-          },
-          style: {
-            colors: '#aaa',
-          },
+          formatter: (value: number) =>
+            value >= 1000 ? `$${Math.round(value / 1000)}k` : `$${value.toLocaleString()}`,
+          style: { colors: '#aaa' },
         },
       },
       tooltip: {
-        x: {
-          format: getTimeFormat(timeframe),
-        },
+        x: { format: getTimeFormat(timeframe) },
         theme: 'dark',
       },
       plotOptions: {
@@ -115,9 +83,7 @@ const PriceChart: React.FC<PriceChartProps> = ({
         borderColor: '#333',
         strokeDashArray: 4,
       },
-      theme: {
-        mode: 'dark',
-      },
+      theme: { mode: 'dark' },
       stroke: {
         curve: 'smooth',
         width: chartType === line ? 2 : 1,
@@ -126,6 +92,7 @@ const PriceChart: React.FC<PriceChartProps> = ({
     [chartType, timeframe]
   );
 
+  // Memoize series with stable reference
   const series = useMemo(
     () => [
       {
@@ -136,28 +103,34 @@ const PriceChart: React.FC<PriceChartProps> = ({
     [coinSymbol, chartData]
   );
 
+  // Render with error boundary
+  if (!data?.length) {
+    return (
+      <Box
+        sx={{
+          height: 400,
+          width: '100%',
+          background: '#1A1A1A',
+          borderRadius: '16px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: '#aaa',
+        }}
+      >
+        No data available
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ height: 400, width: '100%', background: '#1A1A1A', borderRadius: '16px' }}>
-      {chartData.length > 0 ? (
-        <ReactApexChart
-          options={options}
-          series={series}
-          type={chartType === line ? line : candlestick}
-          height={400}
-        />
-      ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            color: '#aaa',
-          }}
-        >
-          No data available
-        </Box>
-      )}
+      <ReactApexChart
+        options={options}
+        series={series}
+        type={chartType === line ? line : candlestick}
+        height={400}
+      />
     </Box>
   );
 };
