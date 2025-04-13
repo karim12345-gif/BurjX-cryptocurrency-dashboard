@@ -3,7 +3,6 @@ import { ReactQueryProviderProps } from '../interfaces';
 import { useResponseModelHelper } from '@/services/helpers/ResponseModelHelper';
 
 const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
-  // Use the hook inside the component
   const handleError = useResponseModelHelper();
 
   const queryClient = new QueryClient({

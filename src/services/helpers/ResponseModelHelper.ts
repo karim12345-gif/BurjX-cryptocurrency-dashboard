@@ -12,7 +12,6 @@ export const isResponseModel = (obj: any): obj is ResponseModel<any> => {
   }
 };
 
-// Change to a custom hook (note the "use" prefix)
 export const useResponseModelHelper = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -34,7 +33,6 @@ export const useResponseModelHelper = () => {
       const { result, message } = error.response.data;
 
       if (result === 400) {
-        // Use string to access property
         navigate(routes['404']);
         return;
       } else {
